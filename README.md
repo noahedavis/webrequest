@@ -2,6 +2,8 @@
 
 Simple thread-safe C++ WinHttp wrapper for creating synchronous/asynchronous web requests. Includes easy customization options for mutual tls, retries and authentication.
 
+If you have any suggestions for changes/updates feel free to let me know!
+
 ## Examples
 
 To send a web request and get it's response, call the request() method on a WebRequester object:
@@ -43,6 +45,10 @@ When building the project, you'll need to include each of the cpp files, and the
     winhttp.lib
     Crypt32.Lib
     RpcRT4.Lib
+
+Those libraries can be usually be found in a path like: 
+
+    C:\Program Files (x86)\Windows Kits\10\Lib\[VERSION]\um\[CPU ISA]
 
 More information on the Windows SDK and API can be found [here](https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/) and [here](https://learn.microsoft.com/en-us/windows/win32/apiindex/windows-api-list):
    
