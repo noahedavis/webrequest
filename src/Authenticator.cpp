@@ -2,12 +2,12 @@
 
 using std::lock_guard;
 
-bool Authenticator::ensureAuthentication() {
+bool Authenticator::ensureAuthentication(WinHttp* win_http) {
 
     lock_guard<mutex> lock(authen_mtx);
 
     for (this->curr_try = 0; this->curr_try < this->MAX_NUM_TRIES; this->curr_try++){
-        if (this->authenticate()){
+        if (this->authenticate(win_http)){
             this->is_authenticated = true;
             return true;
         }
@@ -15,10 +15,6 @@ bool Authenticator::ensureAuthentication() {
 
     this->is_authenticated = false;
     return false;
-}
-
-WinHttp* Authenticator::getWinHttp(){
-    return this->win_http;
 }
 
 bool Authenticator::isAuthenticated() {
@@ -33,7 +29,7 @@ multimap<string, string> Authenticator::getAuthenticationHeaders() {
     return multimap<string, string>();
 }
 
-void Authenticator::initializeNumTries(int max_num_tries) {
+void Authenticator::setNumTries(int max_num_tries) {
 
     if ((max_num_tries > 0) && (max_num_tries < 10)){
         this->MAX_NUM_TRIES = max_num_tries;
@@ -43,27 +39,11 @@ void Authenticator::initializeNumTries(int max_num_tries) {
     this->MAX_NUM_TRIES = DEFAULT_MAX_NUM_RETRIES ;
 }
 
-Authenticator::Authenticator(WinHttp* win_http, int max_num_tries) {
+Authenticator::Authenticator(int max_num_tries) {
 
     this->is_authenticated = false;
-    this->initializeNumTries(max_num_tries);
-    
-    if (win_http) {
-        this->win_http = win_http;
-    }
-    else {
-        this->win_http = new WinHttp();
-    }
-
-    this->username = wStringToString(this->win_http->getUserName());
+    this->setNumTries(max_num_tries);
 
 }
 
-Authenticator::~Authenticator() {
-
-    lock_guard<mutex> lock(authen_mtx);
-
-    if (this->win_http){
-        delete this->win_http;
-    }
-}
+Authenticator::~Authenticator() {}
