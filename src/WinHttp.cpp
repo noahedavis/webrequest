@@ -94,6 +94,7 @@ void WinHttp::initializeUserName() {
 
     if (GetUserNameW(username_buffer, &size)) {
         this->user_name = wstring(username_buffer);
+        return;
     }
 
     this->user_name = L"";
