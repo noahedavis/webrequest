@@ -87,31 +87,7 @@ WebResponse WinHttp::request(const string& url, const string& method, bool mutua
 }
 
 void WinHttp::initializeUserName() {
-
-    const int MAX_UN_LEN = 256;
-    WCHAR username_buffer[MAX_UN_LEN];
-    unsigned long size = MAX_UN_LEN;
-
-    if (GetUserNameW(username_buffer, &size)) {
-        this->user_name = wstring(username_buffer);
-        return;
-    }
-
-    this->user_name = L"";
-
-}
-
-wstring WinHttp::getUserName() {
-
-    const int MAX_UN_LEN = 256;
-    WCHAR username_buffer[MAX_UN_LEN];
-    unsigned long size = MAX_UN_LEN;
-
-    if (GetUserNameW(username_buffer, &size)) {
-        return wstring(username_buffer);
-    }
-
-    return L"";
+    this->user_name = getUserName();
 }
 
 bool WinHttp::isSecureUrl(const string& url) {
@@ -337,7 +313,6 @@ map<string, string> WinHttp::receiveResponseHeaders(const HINTERNET& req, const 
                 else {
                     response_headers[vals[0]] = response_headers[vals[0]] + "; " + vals[1];
                 }
-                
             }
         }
 

@@ -15,4 +15,6 @@ string wStringToString(wstring str);
 
 wstring substringLPWSTR(LPWSTR source, int len);
 
+wstring getUserName();
+
 #endif // __STRINGOPERATIONS_H__
