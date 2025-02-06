@@ -42,11 +42,11 @@ class WebRequester {
         );
 
         void setMaxNumRetries(unsigned int num_retries);
-        WinHttp* getWinHttp();
 
     private:
 
         WinHttp win_http;
+        WinHttp* getWinHttp();
 
         unsigned int MAX_NUM_RETRIES;
 
