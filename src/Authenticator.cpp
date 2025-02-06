@@ -29,7 +29,7 @@ multimap<string, string> Authenticator::getAuthenticationHeaders() {
     return multimap<string, string>();
 }
 
-void Authenticator::setNumTries(int max_num_tries) {
+void Authenticator::setNumTries(unsigned int max_num_tries) {
 
     if ((max_num_tries > 0) && (max_num_tries < 10)){
         this->MAX_NUM_TRIES = max_num_tries;
@@ -39,7 +39,7 @@ void Authenticator::setNumTries(int max_num_tries) {
     this->MAX_NUM_TRIES = DEFAULT_MAX_NUM_RETRIES ;
 }
 
-Authenticator::Authenticator(int max_num_tries) {
+Authenticator::Authenticator(unsigned int max_num_tries) {
 
     this->is_authenticated = false;
     this->setNumTries(max_num_tries);

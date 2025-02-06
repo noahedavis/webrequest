@@ -11,7 +11,7 @@ class Authenticator {
 
     public:
 
-        Authenticator(int max_num_tries = DEFAULT_MAX_NUM_RETRIES);
+        Authenticator(unsigned int max_num_tries = DEFAULT_MAX_NUM_RETRIES);
         ~Authenticator();
         
         bool ensureAuthentication(WinHttp* win_http);
@@ -24,10 +24,10 @@ class Authenticator {
         bool is_authenticated;
         multimap<string, string> authentication_headers;
 
-        int MAX_NUM_TRIES;
-        int curr_try;
+        unsigned int MAX_NUM_TRIES;
+        unsigned int curr_try;
 
-        void setNumTries(int max_num_tries = DEFAULT_MAX_NUM_RETRIES);
+        void setNumTries(unsigned int max_num_tries = DEFAULT_MAX_NUM_RETRIES);
         virtual bool authenticate(WinHttp* win_http) = 0;
 
     private:
