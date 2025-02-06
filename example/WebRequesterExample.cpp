@@ -79,12 +79,12 @@ class DummyAuthenticator : public Authenticator {
 
 void AuthenticatorExample() {
 
-    DummyAuthenticator* dummy = new DummyAuthenticator();
+    DummyAuthenticator dummy;
     println("Hello! This is the authenticator example for the WebRequester class");
 
-    WebResponse dummy_authenticated_resp = req.request(google_url, {}, "", {dummy});
+    WebResponse dummy_authenticated_resp = req.request(google_url, {}, "", {&dummy});
     if (dummy_authenticated_resp.success == true) {
-        
+
         // Print the response text of the request
         println("Here's the response from the requested url, \"" + google_url + "\"");
         println(dummy_authenticated_resp.response_str); 
@@ -99,7 +99,6 @@ void AuthenticatorExample() {
 
     println("Done!");
 
-    delete dummy;
 }
 
 int main() {
