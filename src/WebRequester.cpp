@@ -11,17 +11,12 @@ WebResponse WebRequester::request (
                 const string& data,
                 const vector<Authenticator*>& authenticators,
                 bool mutual_tls,
-                WinHttp* request_win_http,
                 string method
 ) {
     
     WebResponse response;
 
-    // Set the WinHttp object to be used for the request. If null, use the default object contained in the class
-    if (!request_win_http) {
-        request_win_http = &(this->win_http);
-    }
-
+    // Set the method for the request
     if (method == "") {
         if (data.length() > 0) {
             method = "POST";
@@ -37,9 +32,10 @@ WebResponse WebRequester::request (
         // Ensure the web session has been properly authenticated before performing the request
         bool authentication_ensured = this->ensureAuthentication(authenticators);
         if (!authentication_ensured) {
-            return request_win_http->failure_response;
+            return this->win_http.failure_response;
         }
 
+        // Insert session headers from the authenticators
         multimap<string, string> request_headers;
         for (Authenticator* authenticator : authenticators) {
             if (authenticator) {
@@ -50,12 +46,13 @@ WebResponse WebRequester::request (
             }
         }
 
+        // Insert request headers
         for (const auto& [name, val] : headers){
             request_headers.insert({name, val});
         }
 
         // Send the request, and if the request was successful, return the response immediately
-        response = request_win_http->request(url, method, mutual_tls, request_headers, data);
+        response = this->win_http.request(url, method, mutual_tls, request_headers, data);
         if (response.success){
             return response;
         }
@@ -70,11 +67,11 @@ future<WebResponse> WebRequester::requestAsync(string url,
             const string& data,
             const vector<Authenticator*>& authenticators,
             bool mutual_tls,
-            WinHttp* win_http
+            string method
 ) {
 
     // Send the request using the new WinHttp object
-    return async(std::launch::async, &WebRequester::request, this, url, headers, data, authenticators, mutual_tls, win_http, "");
+    return async(std::launch::async, &WebRequester::request, this, url, headers, data, authenticators, mutual_tls, method);
 
 }
 
@@ -86,10 +83,10 @@ WinHttp* WebRequester::getWinHttp() {
     return &(this->win_http);
 }
 
-bool WebRequester::ensureAuthentication(const vector<Authenticator*>& authenticators) const {
+bool WebRequester::ensureAuthentication(const vector<Authenticator*>& authenticators) {
     for (Authenticator* authenticator : authenticators) {
         if (authenticator) {
-            if (!authenticator->ensureAuthentication()) {
+            if (authenticator->ensureAuthentication(&this->win_http) == false) {
                 return false;
             }
         }

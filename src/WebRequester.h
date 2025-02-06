@@ -28,7 +28,6 @@ class WebRequester {
             const string& data = "",
             const vector<Authenticator*>& authenticators = {},
             bool mutual_tls = false,
-            WinHttp* request_win_http = NULL,
             string method = ""
         );
 
@@ -38,7 +37,7 @@ class WebRequester {
             const string& data = "",
             const vector<Authenticator*>& authenticators = {},
             bool mutual_tls = false,
-            WinHttp* request_win_http = NULL
+            string method = ""
         );
 
         void setMaxNumRetries(unsigned int num_retries);
@@ -50,7 +49,7 @@ class WebRequester {
 
         unsigned int MAX_NUM_RETRIES;
 
-        bool ensureAuthentication(const vector<Authenticator*>& authenticators = {}) const;
+        bool ensureAuthentication(const vector<Authenticator*>& authenticators = {});
 
 };
 
