@@ -1,4 +1,4 @@
-#include "../WebRequester.h"
+#include "../src/WebRequester.h"
 
 WebRequester req;
 
@@ -53,13 +53,17 @@ class DummyAuthenticator : public Authenticator {
 
         DummyAuthenticator() {}
 
-        bool authenticate() {
-            
+        bool authenticate(WinHttp* win_http) {
+
+            if (win_http == NULL) {
+                return false;
+            }
+
             // Take some series of steps to perform authentication ...
             multimap<string, string> auth_headers;
             auth_headers.insert({"X-Csrf-Token", "tok"});
 
-            WebResponse auth_resp = this->win_http->request("https://dummy-site.com?username=username&password=password", "GET", false, auth_headers);
+            WebResponse auth_resp = win_http->request("https://dummy-site.com?username=username&password=password", "GET", false, auth_headers);
 
             // If the authentication is successful, save the authentication response headers
             if (auth_resp.success) {
@@ -78,26 +82,24 @@ void AuthenticatorExample() {
     DummyAuthenticator* dummy = new DummyAuthenticator();
     println("Hello! This is the authenticator example for the WebRequester class");
 
-    if (dummy->authenticate()) {
-        WebResponse dummy_authenticated_resp = req.request(google_url, {}, "", {}, false, dummy->getWinHttp()); // Or "req.request(google_url, {}, "", {&dummy});"
-        if (dummy_authenticated_resp.success == true) {
-            // Print the response text of the request
-            println("Here's the response from the requested url, \"" + google_url + "\"");
-            println(dummy_authenticated_resp.response_str); 
-        }
-        else {
-            // Print a failure message, along with each of the response's headers
-            println("Request to \"" + google_url + "\" was unsuccessful!");
-            for (auto const & [header_name, header_value] : dummy_authenticated_resp.headers) { // Print the response headers
-                println("Response header: \"" + header_name + "= " + header_value);
-            }
-        }
+    WebResponse dummy_authenticated_resp = req.request(google_url, {}, "", {dummy});
+    if (dummy_authenticated_resp.success == true) {
+        
+        // Print the response text of the request
+        println("Here's the response from the requested url, \"" + google_url + "\"");
+        println(dummy_authenticated_resp.response_str); 
     }
     else {
-        println("Failed to perform authentication!");
+        // Print a failure message, along with each of the response's headers
+        println("Request to \"" + google_url + "\" was unsuccessful!");
+        for (auto const & [header_name, header_value] : dummy_authenticated_resp.headers) { // Print the response headers
+            println("Response header: \"" + header_name + "= " + header_value);
+        }
     }
 
     println("Done!");
+
+    delete dummy;
 }
 
 int main() {
