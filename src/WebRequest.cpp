@@ -80,7 +80,7 @@ void WebRequest::setMaxNumRetries(unsigned int num_retries) {
 bool WebRequest::ensureAuthentication(const vector<Authenticator*>& authenticators) {
     for (Authenticator* authenticator : authenticators) {
         if (authenticator) {
-            if (authenticator->ensureAuthentication(this->win_http) == false) {
+            if (authenticator->ensureAuthentication(&this->win_http) == false) {
                 return false;
             }
         }

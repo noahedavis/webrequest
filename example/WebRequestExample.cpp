@@ -1,6 +1,6 @@
-#include "../src/WebRequester.h"
+#include "../src/WebRequest.h"
 
-WebRequester req;
+WebRequest req;
 
 const string google_url = "https://www.google.com/search?q=C++";
 

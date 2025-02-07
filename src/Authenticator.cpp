@@ -2,7 +2,7 @@
 
 using std::lock_guard;
 
-bool Authenticator::ensureAuthentication(const WinHttp& win_http) {
+bool Authenticator::ensureAuthentication(WinHttp* win_http) {
 
     lock_guard<mutex> lock(authen_mtx);
 
