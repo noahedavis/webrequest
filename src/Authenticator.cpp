@@ -2,7 +2,7 @@
 
 using std::lock_guard;
 
-bool Authenticator::ensureAuthentication(WinHttp* win_http) {
+bool Authenticator::ensureAuthentication(const WinHttp& win_http) {
 
     lock_guard<mutex> lock(authen_mtx);
 
@@ -36,7 +36,7 @@ void Authenticator::setNumTries(unsigned int max_num_tries) {
         return;
     }
 
-    this->MAX_NUM_TRIES = DEFAULT_MAX_NUM_RETRIES ;
+    this->MAX_NUM_TRIES = DEFAULT_MAX_NUM_RETRIES;
 }
 
 Authenticator::Authenticator(unsigned int max_num_tries) {

@@ -86,7 +86,7 @@ WinHttp* WebRequester::getWinHttp() {
 bool WebRequester::ensureAuthentication(const vector<Authenticator*>& authenticators) {
     for (Authenticator* authenticator : authenticators) {
         if (authenticator) {
-            if (authenticator->ensureAuthentication(&this->win_http) == false) {
+            if (authenticator->ensureAuthentication(this->win_http) == false) {
                 return false;
             }
         }
