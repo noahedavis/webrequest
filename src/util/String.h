@@ -13,8 +13,12 @@
 
 #include <regex>
 
+#include <locale>
+#include <codecvt>
+
 using std::vector;
 using std::string;
+using std::wstring;
 
 vector<string> split(string str, string delim);
 bool contains(string str, string targ);
@@ -25,6 +29,10 @@ string replace(const string& original, const string& find, const string& replace
 
 bool isWhitespace(const string& str);
 bool isNumeric(const string& str);
+
+wstring stringToWString(string str);
+
+string wStringToString(wstring str);
 
 
 #endif // __CUSTOM_STRING_H__

@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include "WinStringOperations.h"
+#include "util/WinString.h"
 #include <winhttp.h>
 
 using std::string;
@@ -49,8 +49,6 @@ class WinHttp {
         );
         bool addHeader(const HINTERNET& req, const string& name, const string& value);
         bool addHeaders(const HINTERNET& req, multimap<string, string> headers);
-        
-        wstring getUserName();
 
         const WebResponse failure_response =  {"", -1, false};
 

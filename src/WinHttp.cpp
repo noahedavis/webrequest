@@ -39,7 +39,7 @@ WebResponse WinHttp::request(const string& url, const string& method, bool mutua
         return this->failure_response;
     }
 
-    wstring wMethod = stringToWString(method);
+    wstring wMethod = toWString(method);
 
     HINTERNET req;
     if (isSecureUrl(url)) {
@@ -139,7 +139,7 @@ WinHttp::UrlComponents WinHttp::getUrlComponents(const string& url) {
     comp.dwUrlPathLength = -1;
     comp.dwExtraInfoLength = -1;
 
-    wstring wurl = stringToWString(url);
+    wstring wurl = toWString(url);
     WinHttpCrackUrl(wurl.c_str(), 0, 0, &comp);
 
     wstring host = getHostFromUrlComponents(&comp);
@@ -150,7 +150,7 @@ WinHttp::UrlComponents WinHttp::getUrlComponents(const string& url) {
 }
 
 wstring WinHttp::getHostFromUrlComponents(URL_COMPONENTS * components) {
-    return substringLPWSTR(
+    return toWstring(
         components->lpszHostName,
         components->dwHostNameLength
     );
@@ -161,11 +161,11 @@ INTERNET_PORT WinHttp::getPortFromUrlComponents(URL_COMPONENTS * components) {
 }
 
 wstring WinHttp::getPathFromUrlComponents(URL_COMPONENTS * components) {
-    return substringLPWSTR(
+    return toWstring(
         components->lpszUrlPath,
         components->dwUrlPathLength
     ) 
-    + substringLPWSTR(
+    + toWstring(
         components->lpszExtraInfo,
         components->dwExtraInfoLength
     );
@@ -299,7 +299,7 @@ map<string, string> WinHttp::receiveResponseHeaders(const HINTERNET& req, const 
         }
 
         wstring header_wstr(header_buffer);
-        string header_str = wStringToString(header_wstr);
+        string header_str = toString(header_wstr);
 
         vector<string> header_split = split(header_str, "\r\n");
         for (string header : header_split){
