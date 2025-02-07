@@ -16,11 +16,11 @@ using std::future;
 
 using FutureWebResponse = future<WebResponse>;
 
-class WebRequester {
+class WebRequest {
 
     public:
 
-        WebRequester();
+        WebRequest();
 
         WebResponse request (
             string url,
@@ -45,7 +45,6 @@ class WebRequester {
     private:
 
         WinHttp win_http;
-        WinHttp* getWinHttp();
 
         unsigned int MAX_NUM_RETRIES;
 

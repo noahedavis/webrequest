@@ -34,7 +34,7 @@ WebResponse WinHttp::request(const string& url, const string& method, bool mutua
 
     UrlComponents components = getUrlComponents(url);
 
-    HINTERNET conn = getServerConnection(components.host, components.port);
+    HINTERNET conn = this->getServerConnection(components.host, components.port);
     if (conn == NULL){
         return this->failure_response;
     }
@@ -48,15 +48,15 @@ WebResponse WinHttp::request(const string& url, const string& method, bool mutua
         req =  WinHttpOpenRequest(conn, wMethod.c_str(), components.path.c_str(), L"HTTP/2", WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
     }
 
-    bool disabled_timeouts = disableTimeouts(req);
-    bool allowed_cookies = allowCookies(req);
+    bool disabled_timeouts = this->disableTimeouts(req);
+    bool allowed_cookies = this->allowCookies(req);
     bool auto_decompressing = this->enableDecompression(req);
     bool set_autologin;
     bool set_client_certificates;
 
     if (mutual_tls){
-        set_autologin = setAutoLoginPolicy(req);
-        set_client_certificates = setClientCertificate(req);
+        set_autologin = this->setAutoLoginPolicy(req);
+        set_client_certificates = this->setClientCertificate(req);
     }
 
     this->addHeaders(req, headers);

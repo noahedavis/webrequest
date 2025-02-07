@@ -1,11 +1,11 @@
 
-#include "WebRequester.h"
+#include "WebRequest.h"
 
-WebRequester::WebRequester() {
+WebRequest::WebRequest() {
     this->MAX_NUM_RETRIES = 3;
 }
 
-WebResponse WebRequester::request (
+WebResponse WebRequest::request (
                 string url,
                 const multimap<string, string>& headers,
                 const string& data,
@@ -62,28 +62,22 @@ WebResponse WebRequester::request (
     return response;
 }
 
-future<WebResponse> WebRequester::requestAsync(string url,
+future<WebResponse> WebRequest::requestAsync(string url,
             const multimap<string, string>& headers,
             const string& data,
             const vector<Authenticator*>& authenticators,
             bool mutual_tls,
             string method
 ) {
-
     // Send the request using the new WinHttp object
-    return async(std::launch::async, &WebRequester::request, this, url, headers, data, authenticators, mutual_tls, method);
-
+    return async(std::launch::async, &WebRequest::request, this, url, headers, data, authenticators, mutual_tls, method);
 }
 
-void WebRequester::setMaxNumRetries(unsigned int num_retries) {
+void WebRequest::setMaxNumRetries(unsigned int num_retries) {
     this->MAX_NUM_RETRIES = num_retries;
 }
 
-WinHttp* WebRequester::getWinHttp() {
-    return &(this->win_http);
-}
-
-bool WebRequester::ensureAuthentication(const vector<Authenticator*>& authenticators) {
+bool WebRequest::ensureAuthentication(const vector<Authenticator*>& authenticators) {
     for (Authenticator* authenticator : authenticators) {
         if (authenticator) {
             if (authenticator->ensureAuthentication(this->win_http) == false) {
