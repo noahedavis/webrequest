@@ -32,6 +32,19 @@ bool WinHttp::addHeaders(const HINTERNET& req, multimap<string, string> headers)
 WebResponse WinHttp::request(const string& url, const string& method, bool mutual_tls, multimap<string, string> headers, const string& body) {
 
     UrlComponents components = getUrlComponents(url);
+    string corrected_url;
+
+    if (components.host == L"") {
+        corrected_url = "https://" + url;
+        components = getUrlComponents(corrected_url);
+        if (components.host == L"") {
+            println("Invalid URL passed.");
+            return FAILURE_RESPONSE;
+        }
+    }
+    else {
+        corrected_url = url;
+    }
 
     HINTERNET conn = this->getServerConnection(components.host, components.port);
     if (conn == NULL){
@@ -41,24 +54,22 @@ WebResponse WinHttp::request(const string& url, const string& method, bool mutua
     wstring wMethod = toWString(method);
 
     HINTERNET req;
-    if (isSecureUrl(url)) {
+    if (isSecureUrl(corrected_url)) {
         req =  WinHttpOpenRequest(conn, wMethod.c_str(), components.path.c_str(), L"HTTP/2", WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE);
     } else {
         req =  WinHttpOpenRequest(conn, wMethod.c_str(), components.path.c_str(), L"HTTP/2", WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
     }
 
-    bool disabled_timeouts = this->disableTimeouts(req);
-    bool allowed_cookies = this->allowCookies(req);
-    bool auto_decompressing = this->enableDecompression(req);
-    bool set_autologin;
-    bool set_client_certificates;
+    if (this->disableTimeouts(req) == false) println("Failed to disable timeouts");
+    if (this->allowCookies(req) == false) println("Failed to allow manual cookie management");
+    if (this->enableDecompression(req) == false) println("Failed to enable automatic response decompression");
 
     if (mutual_tls){
-        set_autologin = this->setAutoLoginPolicy(req);
-        set_client_certificates = this->setClientCertificate(req);
+        if (this->setAutoLoginPolicy(req) == false) println("Failed to set automatic login policy");
+        if (this->setClientCertificate(req) == false) println("Failed to set client certificate");
     }
 
-    this->addHeaders(req, headers);
+    if (this->addHeaders(req, headers) == false) println("Failed to add request headers");
 
     int data_len = body.length();
     TCHAR data_buff[data_len];
@@ -143,15 +154,19 @@ WinHttp::UrlComponents WinHttp::getUrlComponents(const string& url) {
     wstring host = getHostFromUrlComponents(&comp);
     wstring path = getPathFromUrlComponents(&comp);
     INTERNET_PORT port = getPortFromUrlComponents(&comp);
+    INTERNET_SCHEME scheme = comp.nScheme;
 
-    return {path, host, port};
+    return {path, host, port, scheme};
 }
 
 wstring WinHttp::getHostFromUrlComponents(URL_COMPONENTS * components) {
-    return toWstring(
-        components->lpszHostName,
-        components->dwHostNameLength
-    );
+    if (components->lpszHostName) {
+        return toWstring(
+            components->lpszHostName,
+            components->dwHostNameLength
+        );
+    }
+    return L"";
 }
 
 INTERNET_PORT WinHttp::getPortFromUrlComponents(URL_COMPONENTS * components) {
@@ -159,14 +174,18 @@ INTERNET_PORT WinHttp::getPortFromUrlComponents(URL_COMPONENTS * components) {
 }
 
 wstring WinHttp::getPathFromUrlComponents(URL_COMPONENTS * components) {
-    return toWstring(
-        components->lpszUrlPath,
-        components->dwUrlPathLength
-    ) 
-    + toWstring(
-        components->lpszExtraInfo,
-        components->dwExtraInfoLength
-    );
+
+    wstring path = L"";
+    wstring extra = L"";
+    
+    if (components->lpszUrlPath){
+        path = toWstring(components->lpszUrlPath, components->dwUrlPathLength);
+    }
+    if (components->lpszExtraInfo){
+        extra = toWstring(components->lpszExtraInfo, components->dwExtraInfoLength);
+    }
+
+    return path + extra;
 }
 
 HINTERNET WinHttp::getServerConnection(const wstring& host, const INTERNET_PORT& port) {
@@ -252,6 +271,7 @@ vector<unsigned char> WinHttp::receiveResponseBytes(const HINTERNET& req) {
 }
 
 string WinHttp::receiveResponseStr(const HINTERNET& req) {
+
     unsigned long buffer_size = 0;
     unsigned long bytes_downloaded = 0;
 
