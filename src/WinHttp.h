@@ -27,6 +27,8 @@ struct WebResponse {
     map<string, string> headers;
 };
 
+#define FAILURE_RESPONSE  {"", -1, false}
+
 class WinHttp {
 
     public:
@@ -35,6 +37,7 @@ class WinHttp {
             wstring path;
             wstring host;
             INTERNET_PORT port;
+            INTERNET_SCHEME scheme;
         };
 
         WinHttp();
@@ -50,14 +53,10 @@ class WinHttp {
         bool addHeader(const HINTERNET& req, const string& name, const string& value);
         bool addHeaders(const HINTERNET& req, multimap<string, string> headers);
 
-        const WebResponse failure_response =  {"", -1, false};
-
     private:
         
         HINTERNET session;
         PCCERT_CONTEXT client_certificates;
-
-        wstring user_name;
 
         map<wstring, HINTERNET> server_connections;
         mutex conn_mtx;
@@ -68,7 +67,6 @@ class WinHttp {
 
         bool newSession();
         HINTERNET newServerConnection(const wstring& host, const int& port);
-
 
         UrlComponents getUrlComponents(const string& url);
         wstring getHostFromUrlComponents(URL_COMPONENTS * components);
@@ -94,7 +92,6 @@ class WinHttp {
         void closeSession();
 
         void removeConnection(const wstring& host);
-        void initializeUserName();
 };
 
 #endif

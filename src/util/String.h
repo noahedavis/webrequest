@@ -30,9 +30,8 @@ string replace(const string& original, const string& find, const string& replace
 bool isWhitespace(const string& str);
 bool isNumeric(const string& str);
 
-wstring stringToWString(string str);
-
-string wStringToString(wstring str);
+wstring toWString(string str);
+string toString(wstring str);
 
 
 #endif // __CUSTOM_STRING_H__

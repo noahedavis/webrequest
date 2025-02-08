@@ -32,7 +32,7 @@ WebResponse WebRequest::request (
         // Ensure the web session has been properly authenticated before performing the request
         bool authentication_ensured = this->ensureAuthentication(authenticators);
         if (!authentication_ensured) {
-            return this->win_http.failure_response;
+            return FAILURE_RESPONSE;
         }
 
         // Insert session headers from the authenticators

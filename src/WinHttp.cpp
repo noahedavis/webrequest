@@ -4,7 +4,6 @@ using std::lock_guard;
 
 WinHttp::WinHttp() {
     this->newSession();
-    this->initializeUserName();
     this->getClientCertificates();
 }
 
@@ -36,7 +35,7 @@ WebResponse WinHttp::request(const string& url, const string& method, bool mutua
 
     HINTERNET conn = this->getServerConnection(components.host, components.port);
     if (conn == NULL){
-        return this->failure_response;
+        return FAILURE_RESPONSE;
     }
 
     wstring wMethod = toWString(method);
@@ -67,12 +66,12 @@ WebResponse WinHttp::request(const string& url, const string& method, bool mutua
 
     bool request_sent = WinHttpSendRequest(req, WINHTTP_NO_ADDITIONAL_HEADERS, 0, data_buff, data_len, data_len, 0);
     if (!request_sent){
-        return this->failure_response;
+        return FAILURE_RESPONSE;
     }
 
     bool response_received = WinHttpReceiveResponse(req, 0);
     if (!response_received){
-        return this->failure_response;
+        return FAILURE_RESPONSE;
     }
 
     int status_code = this->receiveStatusCode(req);
@@ -86,10 +85,6 @@ WebResponse WinHttp::request(const string& url, const string& method, bool mutua
 
 }
 
-void WinHttp::initializeUserName() {
-    this->user_name = getUserName();
-}
-
 bool WinHttp::isSecureUrl(const string& url) {
     return (left(url, 6) == "https:");
 }
@@ -97,10 +92,11 @@ bool WinHttp::isSecureUrl(const string& url) {
 bool WinHttp::getClientCertificates() {
 
     HCERTSTORE store = CertOpenSystemStore(0, TEXT("MY"));
+    wstring username = getUserName();
 
     if (store) {
         this->client_certificates = CertFindCertificateInStore(
-            store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, CERT_FIND_SUBJECT_STR, this->user_name.c_str(), 0
+            store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, CERT_FIND_SUBJECT_STR, username.c_str(), 0
         );
     }
 
@@ -111,6 +107,7 @@ bool WinHttp::getClientCertificates() {
 }
 
 bool WinHttp::newSession() {
+
     this->session = WinHttpOpen(L"WinHttp", WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
 
     unsigned int redirect_policy = WINHTTP_OPTION_REDIRECT_POLICY_ALWAYS;
@@ -129,6 +126,7 @@ HINTERNET WinHttp::newServerConnection(const wstring& host, const int& port) {
 }
 
 WinHttp::UrlComponents WinHttp::getUrlComponents(const string& url) {
+    
     URL_COMPONENTS comp;
     ZeroMemory(&comp, sizeof(comp));
 
@@ -208,6 +206,7 @@ bool WinHttp::enableDecompression(const HINTERNET& req) {
 }
 
 int WinHttp::receiveStatusCode(const HINTERNET& req) {
+
     int status_code = -1;
 
     unsigned long size = sizeof(status_code);
