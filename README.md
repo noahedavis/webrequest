@@ -1,4 +1,4 @@
-# webrequester
+# webrequest
 
 Simple thread-safe C++ WinHttp wrapper for creating synchronous/asynchronous web requests. Includes easy customization options for mutual tls, retries and authentication.
 
